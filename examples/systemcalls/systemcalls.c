@@ -1,4 +1,9 @@
 #include "systemcalls.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <fcntl.h>
 
 /**
  * @param cmd the command to execute with system()
@@ -15,9 +20,14 @@ bool do_system(const char *cmd)
  *  Call the system() function with the command set in the cmd
  *   and return a boolean true if the system() call completed with success
  *   or false() if it returned a failure
-*/
+*/  
+    int status = system("ls -l");
+    if (status == -1) {
+        return false;
+    } else {
+        return true;
+    }
 
-    return true;
 }
 
 /**
@@ -59,9 +69,25 @@ bool do_exec(int count, ...)
  *
 */
 
-    va_end(args);
+    int pid = fork();
+    if (pid == -1) {
+        return false;
 
-    return true;
+    } else if (pid == 0) { // Child process
+        if (execv(command[0], command) == -1) {
+            return false;
+
+        } 
+        return true;
+
+    } else if (pid > 0) { // Parent process
+        int child_pid = wait(NULL);
+        if (child_pid == -1) {
+            return false;
+        }
+        return true;
+    }
+    va_end(args);
 }
 
 /**
@@ -92,6 +118,32 @@ bool do_exec_redirect(const char *outputfile, int count, ...)
  *   The rest of the behaviour is same as do_exec()
  *
 */
+
+    int file = open(outputfile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (file == -1) {
+        return false;
+    }
+
+    int kidpid = fork();
+    switch (kidpid) {
+        case -1:
+            return false;
+        case 0: // Child process
+            if (dup2(file, STDOUT_FILENO) == -1) {
+                return false;
+            }
+            close(file);
+            if (execv(command[0], command) == -1) {
+                return false;
+            }
+            return true;
+        default: // Parent process
+            if (wait(NULL) == -1) {
+                return false;
+            }
+            close(file);
+            return true;
+    }
 
     va_end(args);
 
