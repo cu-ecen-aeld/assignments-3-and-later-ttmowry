@@ -14,7 +14,7 @@ int main( int argc, char *argv[] ) {
     openlog("writer", LOG_PID, LOG_USER);
 
     // Check for correct number of arguments
-    if (argc != 2) {
+    if (argc != 3) {
         syslog(LOG_ERR,"Error: Incorrect number of arguments\n");
         syslog(LOG_ERR,"First argument must be a file to write to, second must be a string\n");
         return 1;
