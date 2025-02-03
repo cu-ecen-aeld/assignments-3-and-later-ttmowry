@@ -4,7 +4,7 @@ CFLAGS = -Wall -Werror -g
 
 SRCS = writer.c
 
-OBJS = writer.o
+OBJS = $(SRCS:.c=.o)
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
