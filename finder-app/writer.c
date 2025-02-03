@@ -13,18 +13,19 @@ int main( int argc, char *argv[] ) {
     // Open the system log
     openlog("writer", LOG_PID, LOG_USER);
 
-    FILE *file = fopen(argv[1], "w");
-    if (file == NULL) {
-        syslog(LOG_ERR, "Error: Could not open file %s\n", argv[1]);
-        return 1;
-    }
-
     // Check for correct number of arguments
     if (argc != 2) {
         syslog(LOG_ERR,"Error: Incorrect number of arguments\n");
         syslog(LOG_ERR,"First argument must be a file to write to, second must be a string\n");
         return 1;
     }
+
+    FILE *file = fopen(argv[1], "w");
+    if (file == NULL) {
+        syslog(LOG_ERR, "Error: Could not open file %s\n", argv[1]);
+        return 1;
+    }
+
 
     // Write the message to the system log
     syslog(LOG_DEBUG, "writing %s to %s", argv[2], argv[1]);

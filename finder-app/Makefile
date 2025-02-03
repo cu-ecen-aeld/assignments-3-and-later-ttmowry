@@ -1,4 +1,8 @@
-CC = aarch64-none-linux-gnu-gcc
+ifdef CROSS_COMPILE
+	CC = aarch64-none-linux-gnu-gcc
+else
+	CC = gcc
+endif
 
 CFLAGS = -Wall -Werror -g
 
