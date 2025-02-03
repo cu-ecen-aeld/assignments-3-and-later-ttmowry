@@ -28,7 +28,6 @@ else if [ ! -f $WRITEFILE ]; then
 
 else
 
-
     echo $WRITESTR > $WRITEFILE
     exit 0
 
