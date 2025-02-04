@@ -1,9 +1,3 @@
-ifdef CROSS_COMPILE
-	CC = aarch64-none-linux-gnu-gcc
-else
-	CC = gcc
-endif
-
 CFLAGS = -Wall -Werror -g
 
 SRCS = writer.c
@@ -11,10 +5,10 @@ SRCS = writer.c
 OBJS = $(SRCS:.c=.o)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CROSS_COMPILE)gcc $(CFLAGS) -c $< -o $@
 
 writer: $(OBJS)
-	$(CC) $(CFLAGS) -o $@ $^
+	$(CROSS_COMPILE)gcc $(CFLAGS) -o $@ $^
 
 .PHONY: all
 all: writer
