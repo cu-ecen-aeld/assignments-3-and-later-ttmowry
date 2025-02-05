@@ -44,6 +44,7 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
 fi
 
 echo "Adding the Image in outdir"
+sudo cp ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ${OUTDIR}
 
 echo "Creating the staging directory for the root filesystem"
 cd "$OUTDIR"
@@ -91,17 +92,17 @@ make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
 make CONFIG_PREFIX=${OUTDIR} ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} install
 
 echo "Library dependencies"
-${CROSS_COMPILE}readelf -a ${OUTDIR}/busybox/busybox | grep "program interpreter"
-${CROSS_COMPILE}readelf -a ${OUTDIR}/busybox/busybox | grep "Shared library"
+${CROSS_COMPILE}readelf -a ${OUTDIR}/bin/busybox | grep "program interpreter"
+${CROSS_COMPILE}readelf -a ${OUTDIR}/bin/busybox | grep "Shared library"
 
 # TODO: Add library dependencies to rootfs
 
 echo "adding library dependencies to rootfs"
-SYSINT=$(${CROSS_COMPILE}readelf -a ${OUTDIR}/busybox/busybox | grep "program interpreter" | awk -F ': ' '{print $2}' | tr -d '[]')
+SYSINT=$(${CROSS_COMPILE}readelf -a ${OUTDIR}/bin/busybox | grep "program interpreter" | awk -F ': ' '{print $2}' | tr -d '[]')
 cp -L $SYSINT ${OUTDIR}/rootfs/lib64
 
 # Extract shared libraries required by busybox
-SYSLIBS=$(${CROSS_COMPILE}readelf -a ${OUTDIR}/busybox/busybox | grep "Shared library" | awk -F '\\[|\\]' '{print $2}')
+SYSLIBS=$(${CROSS_COMPILE}readelf -a ${OUTDIR}/bin/busybox | grep "Shared library" | awk -F '\\[|\\]' '{print $2}')
 
 for i in $SYSLIBS
 do
@@ -135,5 +136,4 @@ sudo chown -R root:root ${OUTDIR}/rootfs
 # TODO: Create initramfs.cpio.gz
 echo "Creating initramfs.cpio.gz"
 cd ${OUTDIR}/rootfs
-find . | cpio -H newc -ov --owner root:root | gzip > ../initramfs.cpio
-gzip -f ../initramfs.cpio
+find . | cpio -H newc -ov --owner root:root | gzip > ../initramfs.cpio.gz
