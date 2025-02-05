@@ -35,7 +35,7 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     git checkout ${KERNEL_VERSION}
 
     # Apply patch to the kernel build regarding multiple definitiuon of yylloc
-    # git apply ${FINDER_APP_DIR}/e33a814e772cdc36436c8c188d8c42d019fda639.patch
+    git apply ${FINDER_APP_DIR}/e33a814e772cdc36436c8c188d8c42d019fda639.patch
 
     # TODO: Add your kernel build steps here
     echo "Building kernel"
