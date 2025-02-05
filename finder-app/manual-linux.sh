@@ -91,21 +91,21 @@ make ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE}
 make CONFIG_PREFIX=${OUTDIR} ARCH=${ARCH} CROSS_COMPILE=${CROSS_COMPILE} install
 
 echo "Library dependencies"
-${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter"
-${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library"
+${CROSS_COMPILE}readelf -a ${OUTDIR}/busybox/busybox | grep "program interpreter"
+${CROSS_COMPILE}readelf -a ${OUTDIR}/busybox/busybox | grep "Shared library"
 
 # TODO: Add library dependencies to rootfs
 
 echo "adding library dependencies to rootfs"
-SYSINT=$(${CROSS_COMPILE}readelf -a bin/busybox | grep "program interpreter" | awk -F ': ' '{print $2}' | tr -d '[]')
+SYSINT=$(${CROSS_COMPILE}readelf -a ${OUTDIR}/busybox/busybox | grep "program interpreter" | awk -F ': ' '{print $2}' | tr -d '[]')
 cp -L $SYSINT ${OUTDIR}/rootfs/lib64
 
 # Extract shared libraries required by busybox
-SYSLIBS=$(${CROSS_COMPILE}readelf -a bin/busybox | grep "Shared library" | awk -F '\\[|\\]' '{print $2}')
+SYSLIBS=$(${CROSS_COMPILE}readelf -a ${OUTDIR}/busybox/busybox | grep "Shared library" | awk -F '\\[|\\]' '{print $2}')
 
 for i in $SYSLIBS
 do
-    cp -L $i ${OUTDIR}/rootfs/lib64
+    cp -L /lib64/$i ${OUTDIR}/rootfs/lib64
 done
 
 # TODO: Make device nodes
@@ -136,4 +136,4 @@ sudo chown -R root:root ${OUTDIR}/rootfs
 echo "Creating initramfs.cpio.gz"
 cd ${OUTDIR}/rootfs
 find . | cpio -H newc -ov --owner root:root | gzip > ../initramfs.cpio
-gzip -f initramfs.cpio
+gzip -f ../initramfs.cpio
