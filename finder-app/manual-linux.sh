@@ -21,7 +21,7 @@ else
 	echo "Using passed directory ${OUTDIR} for output"
 fi
 
-mkdir -p ${OUTDIR}
+sudo mkdir -p ${OUTDIR}
 
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/linux-stable" ]; then
@@ -33,6 +33,9 @@ if [ ! -e ${OUTDIR}/linux-stable/arch/${ARCH}/boot/Image ]; then
     cd linux-stable
     echo "Checking out version ${KERNEL_VERSION}"
     git checkout ${KERNEL_VERSION}
+
+    # Apply patch to the kernel build regarding multiple definitiuon of yylloc
+    # git apply ${FINDER_APP_DIR}/e33a814e772cdc36436c8c188d8c42d019fda639.patch
 
     # TODO: Add your kernel build steps here
     echo "Building kernel"
@@ -56,26 +59,26 @@ fi
 
 # TODO: Create necessary base directories
 echo "Creating base directories"
-mkdir -p ${OUTDIR}/rootfs/bin
-mkdir -p ${OUTDIR}/rootfs/dev
-mkdir -p ${OUTDIR}/rootfs/etc
-mkdir -p ${OUTDIR}/rootfs/home
-mkdir -p ${OUTDIR}/rootfs/lib
-mkdir -p ${OUTDIR}/rootfs/lib64
-mkdir -p ${OUTDIR}/rootfs/proc
-mkdir -p ${OUTDIR}/rootfs/sbin
-mkdir -p ${OUTDIR}/rootfs/sys
-mkdir -p ${OUTDIR}/rootfs/tmp
-mkdir -p ${OUTDIR}/rootfs/usr
-mkdir -p ${OUTDIR}/rootfs/var
-mkdir -p ${OUTDIR}/rootfs/usr/bin 
-mkdir -p ${OUTDIR}/rootfs/usr/sbin
-mkdir -p ${OUTDIR}/rootfs/var/log
+sudo mkdir -p ${OUTDIR}/rootfs/bin
+sudo mkdir -p ${OUTDIR}/rootfs/dev
+sudo mkdir -p ${OUTDIR}/rootfs/etc
+sudo mkdir -p ${OUTDIR}/rootfs/home
+sudo mkdir -p ${OUTDIR}/rootfs/lib
+sudo mkdir -p ${OUTDIR}/rootfs/lib64
+sudo mkdir -p ${OUTDIR}/rootfs/proc
+sudo mkdir -p ${OUTDIR}/rootfs/sbin
+sudo mkdir -p ${OUTDIR}/rootfs/sys
+sudo mkdir -p ${OUTDIR}/rootfs/tmp
+sudo mkdir -p ${OUTDIR}/rootfs/usr
+sudo mkdir -p ${OUTDIR}/rootfs/var
+sudo mkdir -p ${OUTDIR}/rootfs/usr/bin 
+sudo mkdir -p ${OUTDIR}/rootfs/usr/sbin
+sudo mkdir -p ${OUTDIR}/rootfs/var/log
 
 cd "$OUTDIR"
 if [ ! -d "${OUTDIR}/busybox" ]
 then
-git clone git://busybox.net/busybox.git
+    git clone git://busybox.net/busybox.git
     cd busybox
     git checkout ${BUSYBOX_VERSION}
     # TODO:  Configure busybox
@@ -99,14 +102,14 @@ ${CROSS_COMPILE}readelf -a ${OUTDIR}/bin/busybox | grep "Shared library"
 
 echo "adding library dependencies to rootfs"
 SYSINT=$(${CROSS_COMPILE}readelf -a ${OUTDIR}/bin/busybox | grep "program interpreter" | awk -F ': ' '{print $2}' | tr -d '[]')
-cp -L $SYSINT ${OUTDIR}/rootfs/lib64
+sudo cp -L $SYSINT ${OUTDIR}/rootfs/lib64
 
 # Extract shared libraries required by busybox
 SYSLIBS=$(${CROSS_COMPILE}readelf -a ${OUTDIR}/bin/busybox | grep "Shared library" | awk -F '\\[|\\]' '{print $2}')
 
 for i in $SYSLIBS
 do
-    cp -L /lib64/$i ${OUTDIR}/rootfs/lib64
+    sudo cp -L /lib64/$i ${OUTDIR}/rootfs/lib64
 done
 
 # TODO: Make device nodes
@@ -119,15 +122,15 @@ echo "Building writer utility"
 cd ${FINDER_APP_DIR}
 make clean
 make CROSS_COMPILE=${CROSS_COMPILE}
-cp writer ${OUTDIR}/rootfs/home
+sudo cp writer ${OUTDIR}/rootfs/home
 
 # TODO: Copy the finder related scripts and executables to the /home directory
 # on the target rootfs
 echo "Copying finder related scripts and executables to the /home directory"
-cp ${FINDER_APP_DIR}/finder-test.sh ${OUTDIR}/rootfs/home
-cp ${FINDER_APP_DIR}/finder.sh ${OUTDIR}/rootfs/home
-cp -r ${FINDER_APP_DIR}/conf/ ${OUTDIR}/rootfs/home
-cp ${FINDER_APP_DIR}/autorun-qemu.sh ${OUTDIR}/rootfs/home
+sudo cp ${FINDER_APP_DIR}/finder-test.sh ${OUTDIR}/rootfs/home
+sudo cp ${FINDER_APP_DIR}/finder.sh ${OUTDIR}/rootfs/home
+sudo cp -r ${FINDER_APP_DIR}/conf/ ${OUTDIR}/rootfs/home
+sudo cp ${FINDER_APP_DIR}/autorun-qemu.sh ${OUTDIR}/rootfs/home
 
 # TODO: Chown the root directory
 echo "Changing ownership of root directory"
