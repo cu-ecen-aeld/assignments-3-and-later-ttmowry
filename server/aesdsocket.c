@@ -32,24 +32,6 @@
 
 #define PORT 9000
 
-// ALREADY DEFINED?
-
-// struct sockaddr {
-//     sa_family_t sa_family;
-//     char sa_data[14];
-// };
-
-// struct addrinfo {
-//     int ai_flags;
-//     int ai_family;
-//     int ai_socktype;
-//     int ai_protocol;
-//     socklen_t ai_addrlen;
-//     struct sockaddr *ai_addr;
-//     char *ai_canonname;
-//     struct addrinfo *ai_next;
-// };
-
 int sock_fd, new_socket;
 int status;
 struct sockaddr sockaddr, newsockaddr;
